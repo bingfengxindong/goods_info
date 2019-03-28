@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}{{ title }}{% endblock %}
+{% block css %}
+    <style>
+        a:hover{
+            text-decoration: none;
+        }
+        #user_info{
+            border-left: 1px solid lightgray;
+        }
+        #user_navi{
+            min-height: 430px;
+        }
+        .uc_lable{
+            height: 50px;
+            text-align: center;
+            line-height: 50px;
+        }
+        .uc_lable b{
+            color: gray;
+        }
+        #uc_lable{
+            background-color: grey;
+        }
+        #uc_lable b{
+            color: white;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div>
+        <ol class="breadcrumb">
+            <li><a href="/goods/index">首页</a></li>
+            <li class="active">用户个人中心</li>
+        </ol>
+    </div>
+    <div class="row">
+        <div class="col-md-1 col-xs-1"></div>
+        <div class="col-md-2 col-xs-3" id="user_navi">
+            <div class="uc_lable" id="uc_lable"><b>用户信息</b></div>
+            <div class="uc_lable"><a href="/goods/user_center_col"><b>收藏记录</b></a></div>
+            <div class="uc_lable"><a href="/goods/user_center_history"><b>历史浏览记录</b></a></div>
+        </div>
+
+        <div class="col-md-8 col-xs-7" id="user_info">
+            <div class="uc_info">
+                <h1><b>用户信息</b></h1>
+                <h4>
+                    <b>用户名：{{ user.u_username }}</b>
+                    <a href="">
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                    </a>
+                </h4>
+                <h4><b>账号：{{ user.u_login_name }}</b></h4>
+                <h4>
+                    <b>手机：{{ user.u_phone_number }}</b>
+                    <a href="">
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                    </a>
+                </h4>
+                <h4>
+                    <b>邮箱：{{ user.u_email }}</b>
+                    <a href="">
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                    </a>
+                </h4>
+            </div>
+        </div>
+        <div class="col-md-1 col-xs-1"></div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+        $(function () {
+            $("#login_out").hide()
+        })
+    </script>
+{% endblock %}

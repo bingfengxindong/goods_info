@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/font_css/iconfont.css">
+    <title>产品撞色上传</title>
+</head>
+<body>
+    <h1>产品撞色上传</h1>
+    <b>(未上传的数据文件)</b>
+    <div>
+        <a href="/goods/upload_data">产品上传</a>
+        <a href="/goods_change/change_data">产品变化</a>
+        <a href="/goods_type/goods_type_upload">产品类型上传</a>
+        <a href="/goods_type/goods_color_type_upload">产品颜色类型</a>
+        <b>产品撞色上传</b>
+    </div>
+    <h3>{{ brand.b_name }}:{{ time_t.t_time }}</h3>
+    <hr>
+    {% for b in brands %}
+        {% ifequal b.b_name brand.b_name %}
+            <b>{{ b.b_name }}</b>
+        {% else %}
+            <a href="/goods/goods_match_color_upload?b_name={{ b.b_name }}&t_time={{ time_t.t_id }}">{{ b.b_name }}</a>
+        {% endifequal %}
+    {% endfor %}
+    <br>
+    {% for t in times %}
+        {% ifequal t.t_id time_t.t_id %}
+            <b>{{ t.t_time }}</b>
+        {% else %}
+            <a href="/goods/goods_match_color_upload?b_name={{ brand.b_name }}&t_time={{ t.t_id }}">{{ t.t_time }}</a>
+        {% endifequal %}
+    {% endfor %}
+    <hr>
+    <form method="post" action="">
+        {% for gimg in gimgs %}
+            <b>{{ forloop.counter }}</b>
+            <input type="checkbox" name="gi_id" value="{{ gimg.gimg_gi_goods.pk }}"/>
+            <b>{{ gimg.gimg_gi_goods.gi_goods.g_name }}</b>
+            <img src="/static/media/{{ gimg.gimg_path }}" style="width: 10%"/>
+            {% ifequal gimg.gimg_gi_goods.gi_match_color 1 %}
+                <b style="color: red">撞色</b>
+            {% else %}
+                <b style="color: green">未撞色</b>
+            {% endifequal %}
+            <br>
+        {% endfor %}
+        <input type="submit" value="提交"/>
+    </form>
+</body>
+</html>

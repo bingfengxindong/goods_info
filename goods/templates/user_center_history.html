@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}{{ title }}{% endblock %}
+{% block css %}
+    <style>
+        a:hover{
+            text-decoration: none;
+        }
+        #user_info{
+            border-left: 1px solid lightgray;
+        }
+        #user_navi{
+            min-height: 430px;
+        }
+        .uc_lable{
+            height: 50px;
+            text-align: center;
+            line-height: 50px;
+        }
+        .uc_lable b{
+            color: gray;
+        }
+        #uc_lable{
+            background-color: grey;
+        }
+        #uc_lable b{
+            color: white;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div>
+        <ol class="breadcrumb">
+            <li><a href="/goods/index">首页</a></li>
+            <li class="active">用户个人中心</li>
+        </ol>
+    </div>
+    <div class="row">
+        <div class="col-md-1 col-xs-1"></div>
+        <div class="col-md-2 col-xs-3" id="user_navi">
+            <div class="uc_lable"><a href="/goods/user_center_info"><b>用户信息</b></a></div>
+            <div class="uc_lable"><a href="/goods/user_center_col"><b>收藏记录</b></a></div>
+            <div class="uc_lable" id="uc_lable"><b>历史浏览记录</b></div>
+        </div>
+
+        <div class="col-md-8 col-xs-7" id="user_info">
+            <h1><b>产品历史记录(近十天)</b></h1>
+            {% for goodshistory in goodshistorys %}
+                <ul class="nav nav-tabs">
+                  <li role="presentation"><a>{{ goodshistory.time }}</a></li>
+                </ul>
+                <br>
+                <div class="row img">
+                    {% for bh in goodshistory.goods_data %}
+                        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 goods">
+                            <div class="thumbnail">
+                                <a href="/goods/goods_detail?goods_pk={{ bh.goods.pk }}"><img src="\static\media\{{ bh.gimg.gimg_path }}"></a>
+                                <div class="caption">
+                                    <p>{{ bh.goods.g_name }}</p>
+                                    <b>{{ bh.goods.b_brand.b_name }}</b>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="col-md-1 col-xs-1"></div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+        $(function () {
+            $("#login_out").hide()
+        });
+        $(".img").imagesLoaded(function () {
+            $(".img").masonry({
+                itemSelector:".goods"
+            });
+        });
+    </script>
+{% endblock %}

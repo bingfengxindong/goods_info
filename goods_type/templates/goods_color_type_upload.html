@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/font_css/iconfont.css">
+    <title>产品颜色类型上传</title>
+</head>
+<body>
+    <h1>产品颜色类型上传</h1>
+    <b>(未上传的数据文件)</b>
+    <div>
+        <a href="/goods/upload_data">产品上传</a>
+        <a href="/goods_change/change_data">产品变化</a>
+        <a href="/goods_type/goods_type_upload">产品类型上传</a>
+        <b>产品颜色类型上传</b>
+        <a href="/goods/goods_match_color_upload">产品撞色上传</a>
+    </div>
+    <h3>{{ brand.b_name }}:{{ time_t.t_time }}</h3>
+    <hr>
+    {% for b in brands %}
+        {% ifequal b.b_name brand.b_name %}
+            <b>{{ b.b_name }}</b>
+        {% else %}
+            <a href="/goods_type/goods_color_type_upload?b_name={{ b.b_name }}&t_time={{ time_t.t_id }}">{{ b.b_name }}</a>
+        {% endifequal %}
+    {% endfor %}
+    <br>
+    {% for t in times %}
+        {% ifequal t.t_id time_t.t_id %}
+            <b>{{ t.t_time }}</b>
+        {% else %}
+            <a href="/goods_type/goods_color_type_upload?b_name={{ brand.b_name }}&t_time={{ t.t_id }}">{{ t.t_time }}</a>
+        {% endifequal %}
+    {% endfor %}
+    <hr>
+    <a href="/goods_type/brand_goods_color_type_upload?time={{ time_t.pk }}&brand={{ brand.pk }}"><b>品牌产品颜色类型上传</b></a>
+    <a href="/goods_type/brand_goods_color_type_classification?time={{ time_t.pk }}&brand={{ brand.pk }}"><b>品牌产品颜色自动分类</b></a>
+    <form method="post" action="">
+        <select name="goods_colortype">
+            {% for goodscolortype in goodscolortypes %}
+                <option value="{{ goodscolortype.gct_color_type }}">{{ goodscolortype.gct_color_type }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <input type="text" name="g_colortype">
+        (若类型不存在请手动填写) <b>未分类的颜色数量：<span style="color: red">{{ no_color_type_num }}</span></b>
+        <br>
+        {% for goodscolordata in goodscolordatas %}
+            <b>{{ forloop.counter }}</b>
+            <input type="checkbox" name="gi_id" value="{{ goodscolordata.gi.gi_id }}"/>
+            {% ifequal goodscolordata.gi.gi_color_type.gct_color_type "未分类" %}
+                <b style="color: red">{{ goodscolordata.goods.g_name }}</b>
+            {% else %}
+                <b>{{ goodscolordata.goods.g_name }}</b>
+            {% endifequal %}
+            <img src="/static/media/{{ goodscolordata.gimg.gimg_path }}" style="width: 10%"/>
+            <b>{{ goodscolordata.gi.gi_color }}</b>
+            {% ifequal goodscolordata.gi.gi_color_type.gct_color_type "未分类" %}
+                <b style="color: red">{{ goodscolordata.gi.gi_color_type.gct_color_type }}</b>
+            {% else %}
+                <b style="color: green">{{ goodscolordata.gi.gi_color_type.gct_color_type }}</b>
+            {% endifequal %}
+            <br>
+        {% endfor %}
+        <input type="submit" value="提交"/>
+    </form>
+</body>
+</html>

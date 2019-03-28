@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/font_css/iconfont.css">
+    <title>产品类型上传</title>
+</head>
+<body>
+    <h1>产品类型上传</h1>
+    <b>(未上传的数据文件)</b>
+    <div>
+        <a href="/goods/upload_data">产品上传</a>
+        <a href="/goods_change/change_data">产品变化</a>
+        <b>产品类型上传</b>
+        <a href="/goods_type/goods_color_type_upload">产品颜色类型上传</a>
+        <a href="/goods/goods_match_color_upload">产品撞色上传</a>
+    </div>
+    <h3>{{ brand.b_name }}:{{ time_t.t_time }}</h3>
+    <hr>
+    {% for b in brands %}
+        {% ifequal b.b_name brand.b_name %}
+            <b>{{ b.b_name }}</b>
+        {% else %}
+            <a href="/goods_type/goods_type_upload?b_name={{ b.b_name }}&t_time={{ time_t.t_id }}">{{ b.b_name }}</a>
+        {% endifequal %}
+    {% endfor %}
+    <br>
+    {% for t in times %}
+        {% ifequal t.t_id time_t.t_id %}
+            <b>{{ t.t_time }}</b>
+        {% else %}
+            <a href="/goods_type/goods_type_upload?b_name={{ brand.b_name }}&t_time={{ t.t_id }}">{{ t.t_time }}</a>
+        {% endifequal %}
+    {% endfor %}
+    <hr>
+    <a href="/goods_type/brand_goods_type_upload?time={{ time_t.pk }}&brand={{ brand.pk }}"><b>品牌产品类型上传</b></a>
+    <a href="/goods_type/brand_goods_type_classification?time={{ time_t.pk }}&brand={{ brand.pk }}"><b>品牌产品自动分类</b></a>
+    <form method="post" action="">
+        <select name="goodstype">
+            {% for goodstype in goodstypes %}
+                <option value="{{ goodstype.gt_type }}">{{ goodstype.gt_type }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <input type="text" name="g_type">
+        (若类型不存在请手动填写) <b>未分类的数量：<span style="color: red">{{ no_type_num }}</span></b>
+        <br>
+        {% for goods in goods_data %}
+            {{ forloop.counter }}
+            <input type="checkbox" name="g_id" value="{{ goods.goods.g_id }}" />
+            {% ifequal goods.goods.g_type.gt_type "未分类" %}
+                <b style="color: red">{{ goods.goods.g_name }}</b>
+            {% else %}
+                <b>{{ goods.goods.g_name }}</b>
+            {% endifequal %}
+            <img src="/static/media/{{ goods.gimg.gimg_path }}" style="width: 20%"/>
+            {% for gdetail in goods.gdetails %}
+                <b>{{ gdetail }}</b>
+            {% endfor %}
+            {% ifequal goods.goods.g_type.gt_type "未分类" %}
+                <b style="color: red">{{ goods.goods.g_type.gt_type }}</b>
+            {% else %}
+                <b style="color: green">{{ goods.goods.g_type.gt_type }}</b>
+            {% endifequal %}
+            <hr>
+        {% endfor %}
+        <input type="submit" value="提交"/>
+    </form>
+</body>
+</html>

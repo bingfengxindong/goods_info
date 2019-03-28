@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}{{ title }}{% endblock %}
+{% block css %}
+    <style>
+        a:hover{
+            text-decoration: none;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div>
+        <ol class="breadcrumb">
+            <li><a href="/goods/index">首页</a></li>
+            <li class="active">历史记录</li>
+        </ol>
+    </div>
+
+    {% ifequal bh_len 0 %}
+        <div class="row">
+            <div class="col-md-1 col-xs-1"></div>
+            <div class="col-md-10 col-xs-10">
+                <h3>{{ content }}</h3>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-md-1 col-xs-1"></div>
+            <div class="col-md-3 col-xs-3">
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="brand_date" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <b>时间：{{ now_time }}</b>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="brand_date">
+                        {% for time in time_dates %}
+                            <li><a href="/goods/goods_history?now_time={{ time }}&brand_pk={{ brand.pk }}"><b>{{ time }}</b></a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-7 col-xs-7">
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="brand" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <b>品牌：{{ brand.b_name }}</b>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="brand">
+                        {% for brand in brand_nums %}
+                            <li>
+                                <a href="/goods/goods_history?now_time={{ time }}&brand_pk={{ brand.brand.pk }}"><b>{{ brand.brand.b_name }}<span style="color: gray">&nbsp;{{ brand.num }}</span></b></a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+        <br>
+
+        <div class="row" style="min-height: 350px">
+            <div class="col-md-1 col-xs-1"></div>
+            <div class="col-md-10 col-xs-10">
+            {% ifequal bh_single_len 0 %}
+                <h3>在<b>{{ now_time }}</b>时间段内，没有浏览<b>{{ brand.b_name }}</b>的历史记录！</h3>
+            {% else %}
+                <div class="row">
+                    {% for bh_info in bh_infos %}
+                        <div class="col-md-4 col-xs-4">
+                            <div class="thumbnail goods">
+                                <a href="/goods/goods_detail?goods_pk={{ bh_info.goods.pk }}">
+                                    <img src="/static/media/{{ bh_info.g_img }}" class="img-rounded" id="goods_image">
+                                </a>
+                                <div class="caption" style="text-align: center;">
+                                    <b>{{ bh_info.goods.g_name }}</b><br>
+                                    <a href="/goods/goods_list?b_name={{ bh_info.goods.b_brand.b_name }}">
+                                        <b style="color: lightslategrey">brand:{{ bh_info.goods.b_brand.b_name }}</b>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endifequal %}
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+    {% endifequal %}
+{% endblock %}
+{% block script %}
+{#    <script>#}
+{#        $(function () {#}
+{#            var h_list = new Array();#}
+{#            $(".goods").each(function () {#}
+{#                var h = $(this).height();#}
+{#                h_list.push(parseInt(h));#}
+{#            });#}
+{#            var max_h = Math.max.apply(null, h_list);#}
+{#            $(".goods").each(function () {#}
+{#                $(this).height(max_h)#}
+{#            });#}
+{#        });#}
+{#        $(function () {#}
+{#            var h = $(document).height();#}
+{#            var h_content_top = h - 60;#}
+{#            $("#content_top").height(h_content_top)#}
+{#        });#}
+{#        window.onresize = function () {#}
+{#            window.location.reload();#}
+{#        }#}
+{#    </script>#}
+{% endblock %}

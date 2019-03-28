@@ -1,0 +1,194 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script src="/static/js/register.js"></script>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/font_css/iconfont.css">
+    <style>
+        #top{
+            width: 100%;
+            height: 60px;
+        }
+        #content{
+            width: 100%;
+            height: 100%;
+        }
+        .navigation{
+            height: 50px;
+            line-height: 50px;
+            color: slategray;
+            text-align: center;
+        }
+        a:hover{
+            text-decoration: none;
+        }
+        #return_top{
+            display: inline-block;
+            font-size: 35px;
+            width: 40px;
+            height: 50px;
+            background-color: lightgray;
+            position: fixed;
+            right: 50px;
+            bottom: 20px;
+            z-index: 9999;
+        }
+        .icon{
+            font-size: 40px;
+        }
+        #buttom a{
+            color: black;
+        }
+    </style>
+    <script>
+        $(function () {
+            $("#return_top").hide();
+
+            $(window).scroll(function () {
+                if($(this).scrollTop() > 100){
+                    $("#return_top").fadeIn();
+                }else{
+                    $("#return_top").fadeOut();
+                }
+            });
+
+            $("#return_top a").click(function () {
+                $("html,body").animate({scrollTop:0},"slow")
+                return false;
+            })
+        })
+    </script>
+    {% block css %}{% endblock %}
+</head>
+<body>
+    <div id="return_top">
+        <a href="javascript:;">
+            <span class="glyphicon glyphicon-arrow-up" aria-hidden="true" style="color: whitesmoke"></span>
+        </a>
+    </div>
+
+    <div id="top">
+        <div class="row">
+            <div class="col-md-2 col-xs-2" style="height: 60px;text-align: center;line-height: 60px;font-size: 20px;color: lightslategrey">
+                <b>King-Store</b>
+            </div>
+            <div class="col-md-10 col-xs-10">
+                <div class="row">
+                    <div class="col-md-9 col-xs-9" style="line-height: 40px">
+                        <ul class="nav nav-pills">
+                            <li role="presentation">
+                                <a href="/goods/index">
+                                    <div class="navigation">
+                                        <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
+                                        <b>&nbsp;&nbsp;&nbsp;首页</b>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-3 col-xs-3" style="line-height: 60px">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="content">
+        <div class="row" id="content_top">
+            <div class="col-md-12" id="content_all" style="padding-left: 10px;">
+                <div clas="row">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-6">
+                        <h4><b>用户注册</b></h4>
+                        <hr>
+                        <form class="form-horizontal" method="post" action="">
+                            <div class="form-group">
+                                <label for="inputText1" class="col-sm-2 control-label">邮&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;箱</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="email" class="form-control" id="inputText1" onblur="email_verify()" placeholder="邮箱，可用作登录及激活账户">
+                                    <span id="email_verify_text"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputText2" class="col-sm-2 control-label">手机号码</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="phone_number" class="form-control" id="inputText2" onblur="phone_verify()" placeholder="手机号码，可用作登录及激活账户">
+                                    <span id="phone_verify_text"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputText3" class="col-sm-2 control-label">显示名称</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="nickname" class="form-control" id="inputText3" onblur="nickname_verify()" placeholder="用户显示名称，即昵称不少于四个字符">
+                                    <span id="nickname_verify_text"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputPassword1" class="col-sm-2 control-label">密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码</label>
+                                <div class="col-sm-10">
+                                    <input type="password" name="pwd" class="form-control" id="inputPassword1" onblur="pwd_verify()" placeholder="至少八位，必须包含字母、数字，不包含特殊字符">
+                                    <span id="pwd_verify_text"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputPassword2" class="col-sm-2 control-label">确认密码</label>
+                                <div class="col-sm-10">
+                                    <input type="password" name="confirm_pwd" class="form-control" id="inputPassword2" onblur="confirm_pwd_verify()" placeholder="请输入确认密码">
+                                    <span id="confirm_pwd_verify_text"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="btn btn-default">注册</button>
+                                    <a href="/user/login">已经注册！快去登录吧</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br><br><br><br>
+    <br><br><br><br>
+    <div>
+        <hr>
+        <div id="buttom">
+            <div class="row">
+                <div class="col-md-2 col-xs-2"></div>
+                <div class="col-md-3 col-xs-3">
+                    <h4><b>帮助</b></h4>
+                    <a href=""> 产品简介</a><br>
+                    <p></p>
+                    <a href=""> 使用方法</a><br>
+                    <p></p>
+                    <a href=""> 模块简介</a><br>
+                </div>
+                <div class="col-md-6 col-xs-6">
+                    <h4><b>关注我们</b></h4>
+                    <a href="https://www.instagram.com/cnkingstore/" target="_blank">
+                        <i class="icon iconfont icon-instagram"></i>
+                    </a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="https://www.facebook.com/cnkingstore/" target="_blank">
+                        <i class="icon iconfont icon-facebook"></i>
+                    </a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="https://twitter.com/shKingstore" target="_blank">
+                        <i class="icon iconfont icon-twitter"></i>
+                    </a>
+                </div>
+                <div class="col-md-1 col-xs-1"></div>
+            </div>
+        </div>
+        <br>
+        <br>
+    </div>
+</body>
+</html>

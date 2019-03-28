@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}{{ title }}{% endblock %}
+{% block css %}
+    <style>
+        #goods_image{
+            width: 80px;
+            height: 80px;
+        }
+        a:hover{
+            text-decoration: none;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div>
+        <ol class="breadcrumb">
+            <li><a href="/goods/index">首页</a></li>
+            <li class="active">
+                产品分析TOP10：<b>{{ brand.b_name }}</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                日期：<b>{{ time.t_time }}</b>
+            </li>
+        </ol>
+    </div>
+
+    <div class="row">
+        <div class="col-md-1 col-xs-1"></div>
+        <div class="col-md-10 col-xs-10">
+            <div class="btn-group" role="group">
+                <a type="button" class="btn btn-default" disabled="disabled">网站陈列TOP10</a>
+                <a type="button" href="/goods_type/goods_type_top10?b_name={{ brand.b_name }}" class="btn btn-default">产品帽型TOP10</a>
+                <a type="button" href="/goods_type/goods_color_type_top10?b_name={{ brand.b_name }}" class="btn btn-default" >颜色类型TOP10</a>
+            </div>
+        </div>
+        <div class="col-md-1 col-xs-1"></div>
+    </div>
+    <br>
+
+    <div class="row">
+        <div class="col-md-1 col-xs-1"></div>
+        <div class="col-md-10 col-xs-10">
+            <div class="btn-group" role="group">
+                {% for go_page in goods_pages %}
+                    {% ifequal go_page goods_page %}
+                        <a type="button" href="/goods/goods_analysis_top10?b_name={{ brand.b_name }}&goods_page={{ go_page }}" class="btn btn-default" disabled="disabled">{{ go_page }}</a>
+                    {% else %}
+                        <a type="button" href="/goods/goods_analysis_top10?b_name={{ brand.b_name }}&goods_page={{ go_page }}" class="btn btn-default">{{ go_page }}</a>
+                    {% endifequal %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-1 col-xs-1"></div>
+    </div>
+    <br>
+
+    <div class="row">
+        <div class="col-md-1 col-xs-1"></div>
+        <div class="col-md-10 col-xs-10">
+            <table class="table table-bordered" style="text-align: center">
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>产品名字</td>
+                    <td>产品编号</td>
+                    <td>适用人群</td>
+                    <td>上期位置</td>
+                    <td>本期位置</td>
+                    <td>产品变化</td>
+                </tr>
+                {% for data in datas %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <img src="\static\media\{{ data.gi_img }}" class="img-rounded" id="goods_image">
+                        </td>
+                        <td>
+                            <a href="/goods/goods_detail?goods_pk={{ data.gi_goods.pk }}" title="查看详情">
+                                {{ data.gi_goods.g_name }}
+                            </a>
+                        </td>
+                        <td>{{ data.gi_model }}</td>
+                        <td>{{ data.gi_gender }}</td>
+                        {% ifequal data.goodsorderchange "true" %}
+                            {% ifequal data.goodsorderchangechange "none" %}
+                                <td>{{ data.gi_order }}</td>
+                                <td>{{ data.gi_order }}</td>
+                                <td>-</td>
+                            {% else %}
+                                <td>{{ data.goodsorderchangechange.gocc_previous_order }}</td>
+                                <td>{{ data.gi_order }}</td>
+                                <td>
+                                    {{ data.goodsorderchangechange.gocc_order_change }}
+                                    {% ifequal data.goodsorderchangechange.gocc_order_state 1 %}
+                                        <span class="glyphicon glyphicon-arrow-up" aria-hidden="true" style="color: red"></span>
+                                    {% else %}
+                                        <span class="glyphicon glyphicon-arrow-down" aria-hidden="true" style="color: green"></span>
+                                    {% endifequal %}
+                                </td>
+                            {% endifequal %}
+                        {% else %}
+                            <td>{{ data.gi_order }}</td>
+                            <td>{{ data.gi_order }}</td>
+                            <td>-</td>
+                        {% endifequal %}
+                    </tr>
+                {% endfor %}
+                {% ifequal type "ten" %}
+                    <tr>
+                        <td colspan="8">
+                            <a href="/goods/goods_analysis_top10?b_name={{ brand.b_name }}&goods_page={{ goods_page }}&type=all">查看更多</a>
+                        </td>
+                    </tr>
+                {% endifequal %}
+            </table>
+        </div>
+        <div class="col-md-1 col-xs-1"></div>
+    </div>
+
+{% endblock %}
+{% block script %}
+{% endblock %}

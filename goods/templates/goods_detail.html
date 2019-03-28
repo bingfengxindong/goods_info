@@ -1,0 +1,659 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}{{ title }}{% endblock %}
+{% block css %}
+    <style>
+        .detail_b{
+            color: darkgray;
+            font-size: 20px;
+        }
+        .goods_lable{
+            border: 1px solid lightgray;
+            background-color: aliceblue;
+            border-radius: 25px;
+            color: gray;
+        }
+        .goods_desc{
+            border: 1px solid lightgray;
+            background-color: aliceblue;
+            border-radius: 5px;
+            font-size: 15px;
+            color: gray;
+        }
+        .star{
+            color: red;
+        }
+        .star:hover{
+            color: red;
+        }
+        a:hover{
+            text-decoration: none;
+        }
+        .o_n{
+            font-size: 40px;
+        }
+        #old_goods{
+            display: inline-block;
+            position: fixed;
+            z-index: 9999;
+            top:400px;
+            left: 0;
+        }
+        #next_goods{
+            display: inline-block;
+            position: fixed;
+            z-index: 9999;
+            top:400px;
+            right: 0;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    {% ifequal old_goods 0 %}
+    {% else %}
+        <div id="old_goods">
+            <a href="/goods/goods_detail?goods_pk={{ old_goods.pk }}"><span class="o_n glyphicon glyphicon-chevron-left"></span></a>
+        </div>
+    {% endifequal %}
+    {% ifequal next_goods 0 %}
+    {% else %}
+        <div id="next_goods">
+            <a href="/goods/goods_detail?goods_pk={{ next_goods.pk }}"><span class="o_n glyphicon glyphicon-chevron-right"></span></a>
+        </div>
+    {% endifequal %}
+    <div>
+        <ol class="breadcrumb">
+            <li><a href="/goods/index">首页</a></li>
+            <li>
+                <b>[</b>
+                <a href="/goods/goods_list?b_name={{ brand.b_name }}&date={{ brand.create_date }}">产品列表</a>
+                <b>/</b>
+                <a href="/goods_type/goods_type_list?b_name={{ brand.b_name }}&time_id={{ goods.g_time.t_id }}&goodstype={{ goods.g_type.gt_type }}">产品类型列表</a>
+                <b>/</b>
+                <a href="/goods_type/goods_color_type_list?b_name={{ brand.b_name }}&time_id={{ goods.g_time.t_id }}&gct_color_type={{ goodsinformation.gi_color_type }}">产品颜色类型列表</a>
+                <b>]</b>
+            </li>
+            <li class="active">产品详情</li>
+{#            <li class="active">#}
+{#                <b>[</b>#}
+{#                {% ifequal old_goods 0 %}#}
+{#                    <b>向前</b>#}
+{#                {% else %}#}
+{#                    <a href="/goods/goods_detail?goods_pk={{ old_goods.pk }}">向前</a>#}
+{#                {% endifequal %}#}
+{#                <b>/</b>#}
+{#                {% ifequal next_goods 0 %}#}
+{#                    <b>向后</b>#}
+{#                {% else %}#}
+{#                    <a href="/goods/goods_detail?goods_pk={{ next_goods.pk }}">向后</a>#}
+{#                {% endifequal %}#}
+{#                <b>]</b>#}
+{#            </li>#}
+        </ol>
+    </div>
+
+    <div class="row">
+        <div class="col-md-1 col-xs-1"></div>
+        <div class="col-md-10 col-xs-10">
+            <div class="row">
+                <div class="col-md-7 col-xs-7">
+                    <div class="row">
+                        <div class="col-md-2 col-xs-2">
+                            <input type="hidden" id="gi_pk" value="{{ goodsinformation.pk }}">
+                            {% for g_image in goods_images %}
+                                <a onclick="image_change({{ g_image.pk }})" ><img src="/static/media/{{ g_image.gimg_path }}" style="width: 100%"></a><br><br>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-10 col-xs-10" id="big_image"></div>
+                    </div>
+                    <script>
+                        $(function () {
+                            var gi_pk = $("#gi_pk").val();
+                            $.ajax({
+                                url:"/goods/goods_image",
+                                type:"POST",
+                                data:{
+                                    "gi_pk":gi_pk,
+                                },
+                                success:function (data) {
+                                    $("#big_image").html('<img src="/static/media/' + data +'" style="width: 100%"><br><br>');
+                                }
+                            })
+                        });
+
+                        function image_change(gimg_pk) {
+                            var gimg_pk = gimg_pk;
+                            $.ajax({
+                                url:"/goods/goods_image",
+                                type:"POST",
+                                data:{
+                                    "gimg_pk":gimg_pk,
+                                },
+                                success:function (data) {
+                                    $("#big_image").html('<img src="/static/media/' + data +'" style="width: 100%"><br><br>');
+                                }
+                            })
+                        }
+                    </script>
+                </div>
+                <div class="col-md-5 col-xs-5">
+{#                    <h3>{{ goods.g_name }}</h3>#}
+                    <h3><a href="{{ goodsinformation.gi_brand_goods_url }}">{{ goods.g_name }}</a></h3>
+                    {% if goods.g_title != "" %}
+                        <h4 style="color: lightgrey;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ goods.g_title }}</h4>
+                    {% endif %}
+                    <b id="gi_model" style="font-size: 20px">{{ goodsinformation.gi_model }}</b><br>
+                    <b class="detail_b">
+                        产品尺寸：
+                        {% for goods_size in goods_sizes %}
+                            {{ goods_size.gs_size }}
+                        {% endfor %}
+                    </b><br>
+                    <b>产品类型：{{ goods.g_type.gt_type }}</b>
+                    <hr>
+                    <input type="hidden" id="col_g_id" value="{{ goods.g_id }}"/>
+                    <b id="goods_collect">
+                        {% ifequal is_or_not_login 1 %}
+                            {% ifequal col 0 %}
+                                <button class="btn btn-success" role="button" title="喜欢吗？亲！可以收藏哦！" onclick="collection()" style="border-radius: 25%">收藏</button>
+                            {% else %}
+                                <button class="btn btn-default" role="button" onclick="cancel_collection()" style="border-radius: 25%">取消收藏</button>
+                            {% endifequal %}
+                        {% else %}
+                            <a href="/user/login" class="btn btn-success" role="button" title="喜欢吗？亲！可以收藏哦！" style="border-radius: 25%">收藏</a>
+                        {% endifequal %}
+                    </b>
+                    <br>
+
+                    {% ifequal is_or_not_login 1 %}
+                        <span id="star_a" title="喜欢吗？亲！请打分！">
+                        </span>
+                    {% else %}
+                        <span title="喜欢吗？亲！请打分！">
+                            <a href="/user/login" style="color: red;">
+                                <span class="glyphicon glyphicon-star-empty" aria-hidden="true">
+                                </span><span class="glyphicon glyphicon-star-empty" aria-hidden="true">
+                                </span><span class="glyphicon glyphicon-star-empty" aria-hidden="true">
+                                </span><span class="glyphicon glyphicon-star-empty" aria-hidden="true">
+                                </span><span class="glyphicon glyphicon-star-empty" aria-hidden="true">
+                                </span>
+                            </a>
+                        </span>
+                    {% endifequal %}
+
+                    <script>
+                        function star_num(data) {
+                            var data = parseInt(data);
+                            var goods_id = $("#col_g_id").val();
+                            $.ajax({
+                                url:"/goods/goods_star",
+                                type:"get",
+                                data:{
+                                    "num":data,
+                                    "goods_id":goods_id,
+                                },
+                                success:function (a) {
+                                    a1 = "";
+                                    for(var i = 1;i<=data;i++){
+                                        a1 += '<a onclick="star_num(' + i +')" class="star"><span class="glyphicon glyphicon-star" aria-hidden="true"></span></a>'
+                                    }
+                                    a2 = "";
+                                    for (var i = data+1;i<=5;i++){
+                                        a2 += '<a onclick="star_num(' + i +')" class="star"><span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span></a>'
+                                    }
+                                    if(a == "ok"){
+                                        $("#star_a").html(a1+a2)
+                                    }
+                                }
+                            })
+                       }
+                    </script>
+
+                    <br>
+                    {% ifequal is_or_not_login 1 %}
+                        {% ifequal gla 0 %}
+                            <span class="goods_lable">
+                                <b>{{ lable }}</b>
+                            </span>
+                        {% else %}
+                            {% for lable in lables %}
+                                <span class="goods_lables">
+                                    <b>{{ lable }}</b>
+                                </span>&nbsp;
+                            {% endfor %}
+                        {% endifequal %}
+                        <a data-toggle="modal" data-target="#edit_lable" title="添加标签">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        </a>
+                    {% else %}
+                        <span class="goods_lable">
+                            <b>该商品无标签，请添加</b>
+                        </span>
+                        <a href="/user/login" title="添加标签">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        </a>
+                    {% endifequal %}
+                    <br>
+
+                    <div class="modal fade" id="edit_lable" tabindex="-1" role="dialog" aria-labelledby="">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <b>当前仅显示最后三十个标签</b>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                </div>
+                                <div class="modal-body">
+                                    {% ifequal gla 0 %}
+                                        <span class="goods_lable">
+                                            <b>{{ lable }}</b>
+                                        </span>
+                                    {% else %}
+                                        {% for lable in goodslables %}
+                                            <span class="goods_lables">
+                                                <b>{{ lable.gl_lable }}</b>
+                                                <a onclick="btn_switch(this.id)" id="{{ lable.gl_id }}" class="{{ lable.gl_lable }}" style="color: floralwhite" title="修改标签">
+                                                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                                </a>
+{#                                                <a href="/goods/goods_lable?gl_pk={{ lable.pk }}" style="color: floralwhite" title="删除标签">#}
+{#                                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>#}
+{#                                                </a>#}
+                                            </span>&nbsp;
+                                        {% endfor %}
+                                        <div><br></div>
+                                        <div id="lable_edit" class="input-group">
+                                            <input type="hidden" id="lable_id">
+                                            <input type="text" id="edit_lab" class="form-control">
+                                            <span class="input-group-btn">
+                                                <button  class="btn btn-default" onclick="lable_edit()" type="button">提交</button>
+                                                <button class="btn btn-default" onclick="cancel_lab()" type="button">取消</button>
+                                            </span>
+                                        </div>
+                                    {% endifequal %}
+                                    <hr>
+                                    <form action="/goods/goods_lable" method="post" style="text-align: left">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="goods_id" value="{{ goods.g_id }}">
+                                        <div class="form-group">
+                                            <label for="lable_add">标签</label>
+                                            <input type="text" class="form-control" id="lable_add" name="goods_lable" placeholder="请填写标签">
+                                        </div>
+                                        <button type="submit" class="btn btn-default">提交</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        $(function () {
+                            $("#lable_edit").hide();
+                        });
+                        function btn_switch(id) {
+                            var btn_val = $("#" + id).prev().text();
+                            $("#lable_edit").toggle();
+                            $("#edit_lab").val(btn_val);
+                            $("#lable_id").val(id);
+                        }
+                        function cancel_lab() {
+                            $("#lable_edit").hide();
+                            $("#edit_lab").val("");
+                        }
+                        function lable_edit() {
+                            var edit_lable = $("#edit_lab").val();
+                            var lable_id = $("#lable_id").val();
+                            $.ajax({
+                                url:"/goods/goods_lable_edit",
+                                type:"GET",
+                                data:{
+                                    "edit_lable":edit_lable,
+                                    "lable_id":lable_id,
+                                },
+                                success:function (data) {
+                                    $("#" + lable_id).prev().text(data)
+                                }
+                            })
+                        }
+                    </script>
+
+                    <hr>
+{#                    {% if goods.g_discount_price != "0" %}#}
+{#                        <del class="detail_b">{{ goods.g_price_type }}{{ goods.g_discount_price }}</del>#}
+{#                    {% endif %}#}
+                    <b class="detail_b">{{ goods.g_price_type }}{{ goods.g_now_price }}</b>
+                    {% ifequal goods_change_len 0 %}
+                        <span class="glyphicon glyphicon-minus"></span>
+                    {% else %}
+                        {% ifequal change "up" %}
+                            <span class="glyphicon glyphicon-arrow-up" style="color:red;font-size: 25px">{{ goods_change.gpc_price_type }}{{ goods_change.gpc_price_change }}</span>
+                        {% else %}
+                            <span class="glyphicon glyphicon-arrow-down" style="color: green;font-size: 25px">{{ goods_change.gpc_price_type }}{{ goods_change.gpc_price_change }}</span>
+                        {% endifequal %}
+                    {% endifequal %}
+                    <br>
+                    <b>{{ goodsinformation.gi_color }}</b><br>
+                    <b>颜色分类：{{ goodsinformation.gi_color_type }}</b>
+                    <div>
+                        {% for goods_first_image in goods_first_images %}
+                            <a href="/goods/goods_detail?goods_pk={{ goods.pk }}&color_pk={{ goods_first_image.color_pk }}">
+                                <img src="/static/media/{{ goods_first_image.gimg_path }}" class="img-circle" style="width: 40px">
+                            </a>
+                        {% endfor %}
+                    </div>
+                    <b class="detail_b" id="gi_gender" title="性别款式">{{ goodsinformation.gi_gender }}</b>
+                    <b class="detail_b" title="网站位置">{{ goodsinformation.gi_order }}</b>
+
+                    <hr>
+                    <h4 style="text-align: left"><b>产品想法描述：</b></h4>
+                    {% ifequal is_or_not_login 1 %}
+                        {% ifequal gcd_n 0 %}
+                            <span class="goods_desc">
+                                <b>此产品暂无想法随笔，请添加！</b>
+                            </span>
+                        {% else %}
+                            <span class="goods_desc" style="font-size: 15px;color: gray;">
+                                <b>{{ goodscustomdesc.gcd_description|safe }}</b>
+                            </span>
+                        {% endifequal %}
+                        <a data-toggle="modal" data-target="#edit_desc" title="添加想法">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        </a>
+                    {% else %}
+                        <span class="goods_desc">
+                            <b>此产品暂无想法随笔，请添加！</b>
+                        </span>
+                        <a href="/user/login" title="添加想法">
+                            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                        </a>
+                    {% endifequal %}
+                    <br>
+
+                    <div class="modal fade" id="edit_desc" tabindex="-1" role="dialog" aria-labelledby="">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <b>本记录只显示最后三十条</b>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                </div>
+                                <div class="modal-body">
+                                    {% ifequal gcd_n 0 %}
+                                        <span class="goods_desc">
+                                            <b>此产品暂无想法记录，请添加！</b>
+                                        </span>
+                                    {% else %}
+                                        {% for goodscustomdescshis in goodscustomdescshiss %}
+                                                <span class="goods_desc">
+                                                    <b>{{ goodscustomdescshis.create_date }}：{{ goodscustomdescshis.gcd_description|safe }}</b>
+                                                    <a onclick="btn_gcd_switch(this.id)" id="{{ goodscustomdescshis.gcd_id }}" class="{{ goodscustomdescshis.gcd_description }}" title="修改标签">
+                                                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                                    </a>
+{#                                                    {% ifequal goodscustomdescshis.isdelete False %}#}
+{#                                                        <a href="/goods/goods_desc?desc_pk={{ goodscustomdescshis.pk }}&goods_pk={{ goods.pk }}" title="删除随笔">#}
+{#                                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>#}
+{#                                                        </a>#}
+{#                                                    {% endifequal %}#}
+                                                </span><br>
+                                        {% endfor %}
+                                        <div><br></div>
+                                        <div id="gcd_edit" class="input-group">
+                                            <input type="hidden" id="gcd_id">
+                                            <input type="text" id="edit_gcd" class="form-control">
+                                            <span class="input-group-btn">
+                                                <button  class="btn btn-default" onclick="gcd_edit()" type="button">提交</button>
+                                                <button class="btn btn-default" onclick="cancel_gcd()" type="button">取消</button>
+                                            </span>
+                                        </div>
+                                        <script>
+                                            $(function () {
+                                                $("#gcd_edit").hide();
+                                            });
+                                            function btn_gcd_switch(id) {
+                                                var btn_val = $("#" + id).attr("class");
+                                                $("#gcd_edit").toggle();
+                                                $("#edit_gcd").val(btn_val);
+                                                $("#gcd_id").val(id);
+                                            }
+                                            function cancel_gcd() {
+                                                $("#gcd_edit").hide();
+                                                $("#edit_gcd").val("");
+                                            }
+                                            function gcd_edit() {
+                                                var edit_gcd = $("#edit_gcd").val();
+                                                var gcd_id = $("#gcd_id").val();
+                                                $.ajax({
+                                                    url: "/goods/goods_desc_edit",
+                                                    type: "GET",
+                                                    data: {
+                                                        "edit_gcd": edit_gcd,
+                                                        "gcd_id": gcd_id,
+                                                    },
+                                                    success: function (data) {
+                                                        $("#" + gcd_id).prev().text(data)
+                                                    }
+                                                })
+                                            }
+                                        </script>
+                                    {% endifequal %}
+                                    <hr>
+                                    <form action="/goods/goods_desc" method="post" style="text-align: left">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="goods_id" value="{{ goods.g_id }}">
+                                        <div class="form-group">
+                                            <label for="desc_add">想法</label>
+                                            <textarea class="form-control" id="desc_add" name="goods_desc" placeholder="请填写想法"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-default">提交</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <hr>
+        </div>
+        <div class="col-md-1 col-xs-1"></div>
+    </div>
+    <br>
+
+    <div class="row">
+        <div class="col-md-1 col-xs-1"></div>
+        <div class="col-md-10 col-xs-10">
+            <ul class="nav nav-tabs">
+                <li role="presentation" class="active" style="cursor: pointer" id="detail"  onclick="details()"><a><b>产品详情</b></a></li>
+                <li role="presentation" id="comment" style="cursor: pointer" onclick="comments()"><a><b>产品网站评论</b></a></li>
+                <li role="presentation" id="order" style="cursor: pointer" onclick="order()"><a><b>产品位置记录</b></a></li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        function details() {
+            $("#detail").addClass("active");
+            $("#comment").removeAttr("class");
+            $("#order").removeAttr("class");
+            $("#goods_details").show();
+            $("#goods_comments").hide();
+            $("#goods_orders").hide();
+        }
+        function comments() {
+            $("#comment").addClass("active");
+            $("#detail").removeAttr("class");
+            $("#order").removeAttr("class");
+            $("#goods_comments").show();
+            $("#goods_details").hide();
+            $("#goods_orders").hide();
+        }
+        function order() {
+            $("#order").addClass("active");
+            $("#comment").removeAttr("class");
+            $("#detail").removeAttr("class");
+            $("#goods_orders").show();
+            $("#goods_comments").hide();
+            $("#goods_details").hide();
+        }
+    </script>
+
+    <div class="row" id="goods_details">
+        <div class="col-md-1 col-xs-1"></div>
+        <div class="col-md-10 col-xs-10">
+            {% if goods_details_len == 0 %}
+                <h4><b>当前时间此产品无详情.</b></h4>
+            {% else %}
+                {% for goodsdetail in goods_details %}
+                    <h4>{{ goodsdetail }}</h4>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="col-md-1 col-xs-1"></div>
+    </div>
+
+    <div class="modal fade" id="modal_image" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img src="" class="img-rounded" style="width: 100%">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" id="goods_comments">
+        <div class="col-md-1 col-xs-1"></div>
+        <div class="col-md-10 col-xs-10">
+            {% ifequal goods_comments_len "0" %}
+                <h4><b>当前产品网站详情内无用户评论.</b></h4>
+            {% else %}
+                {% for goods_comment in goods_comments %}
+                    <b>{{ goods_comment.gcom_time }}</b>&nbsp; &nbsp;<span style="color: orange">{{ goods_comment.gcom_star|safe }}</span>
+                    <h4> &nbsp; &nbsp;<b style="color:gray;">{{ goods_comment.gcom_comment }}</b></h4>
+                    <hr>
+                {% endfor %}
+            {% endifequal %}
+        </div>
+        <div class="col-md-1 col-xs-1"></div>
+    </div>
+
+    <div class="row" id="goods_orders">
+        <div class="col-md-1 col-xs-1"></div>
+        <div class="col-md-10 col-xs-10" id="g_orders">
+            
+        </div>
+        <script>
+            $(function () {
+                var gi_model = $("#gi_model").text();
+                var gi_gender = $("#gi_gender").text();
+                $.ajax({
+                    url:"/goods/goods_detail",
+                    type:"POST",
+                    data:{
+                        "gi_model":gi_model,
+                        "gi_gender":gi_gender,
+                    },
+                    success:function (data) {
+                        var gis = eval("(" + data + ")");
+                        var gis_len = gis.length;
+                        var gis_html = "<br><table style='text-align: center;' class='table table-bordered'><tr><td>model</td><td>order</td><td>gender</td><td>time</td></tr>";
+                        for(var i=0;i<gis_len;i++){
+                            gis_html += "<tr><td>" + gis[i]["gi_model"] + "</td>";
+                            gis_html += "<td>" + gis[i]["gi_order"] + "</td>";
+                            gis_html += "<td>" + gis[i]["gi_gender"] + "</td>";
+                            gis_html += "<td>" + gis[i]["time"] + "</td></tr>";
+                        }
+                        gis_html += "</table>";
+                        $("#g_orders").html(gis_html)
+                    }
+                })
+            })
+        </script>
+        <div class="col-md-1 col-xs-1"></div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+        $("#modal_image").on("show.bs.modal",function (event) {
+            var button = $(event.relatedTarget);
+            var src = button.children("img").attr("src");
+            var modal = $(this);
+            modal.find(".modal-body img").attr("src",src)
+        });
+
+        function collection() {
+            var goods_id = $("#col_g_id").val();
+            url = "/goods/goods_collection?goods_id=" + goods_id;
+            $.get(url,function (data) {
+                if(data == "1"){
+                    alert("此商品已收藏，请联系管理员确认您的浏览状态！")
+                }else if(data == "0"){
+                    $("#goods_collect").html('<button class="btn btn-default" role="button" onclick="cancel_collection()" style="border-radius: 25%">取消收藏</button>')
+                }
+            })
+        }
+
+        function cancel_collection() {
+            var goods_id = $("#col_g_id").val();
+            url = "/goods/goods_collection";
+            $.post(
+                url,
+                {
+                    "goods_id":goods_id,
+                },
+                function (data) {
+                    if(data == "ok"){
+                        $("#goods_collect").html('<button class="btn btn-success" role="button" onclick="collection()" style="border-radius: 25%">收藏</button>')
+                    }
+                }
+            )
+        }
+
+        {#$(function () {#}
+        {#    var colors = ["red","darkgreen","dodgerblue","orange","mediumpurple","cyan","yellow","palegreen"];#}
+        {#   $(".goods_lables").each(function () {#}
+        {#       var num = Math.floor(Math.random()*colors.length);#}
+        {#       var color = colors[num];#}
+        {#       $(this).css({"background-color":color,"border-radius":"25px","color":"whitesmoke","font-size":"15px"});#}
+        {#       colors.splice(num,1)#}
+        {#   })#}
+        {#{);#}
+        $(function () {
+            var colors = ["default","primary","success","info","warning","danger"];
+           $(".goods_lables").each(function () {
+               var num = Math.floor(Math.random()*colors.length);
+               var color = colors[num];
+               $(this).addClass("goods_lables " + "label label-" + color);
+           })
+        });
+
+        $(function () {
+            var goods_id = $("#col_g_id").val();
+            $.ajax({
+                url:"/goods/goods_star",
+                type:"post",
+                data:{
+                    "goods_id":goods_id,
+                },
+                success:function (data) {
+                    var data = parseInt(data);
+                    a1 = "";
+                    for(var i = 1;i<=data;i++){
+                        a1 += '<a onclick="star_num(' + i +')" class="star"><span class="glyphicon glyphicon-star" aria-hidden="true"></span></a>'
+                    }
+                    a2 = "";
+                    for (var i = data+1;i<=5;i++){
+                        a2 += '<a onclick="star_num(' + i +')" class="star"><span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span></a>'
+                    }
+                    $("#star_a").html(a1+a2)
+                }
+            })
+        });
+
+        $(function () {
+            $("#goods_models").hide();
+            $("#goods_comments").hide();
+            $("#goods_orders").hide();
+        });
+    </script>
+{% endblock %}

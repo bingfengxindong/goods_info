@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/static/js/jquery-3.3.1.min.js"></script>
+    <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/font_css/iconfont.css">
+    <title>产品变化</title>
+</head>
+<body>
+    <h1>产品变化</h1>
+    <b>(产品未上传的变化)</b>
+    <div>
+        <a href="/goods/upload_data">产品上传</a>
+        <b>产品变化</b>
+        <a href="/goods_type/goods_type_upload">产品类型上传</a>
+        <a href="/goods_type/goods_color_type_upload">产品颜色类型上传</a>
+        <a href="/goods/goods_match_color_upload">产品撞色上传</a>
+    </div>
+
+    <ul class="nav nav-tabs">
+        <li role="presentation" class="active" id="price"  onclick="price()"><a><b>price</b></a></li>
+        <li role="presentation" id="extence" onclick="extence()"><a><b>extence</b></a></li>
+        <li role="presentation" id="order" onclick="order()"><a><b>order</b></a></li>
+        <li role="presentation" id="color" onclick="color()"><a><b>color</b></a></li>
+    </ul>
+    <script>
+        function price() {
+            $("#price").addClass("active");
+            $("#extence").removeAttr("class");
+            $("#order").removeAttr("class");
+            $("#color").removeAttr("class");
+            $("#goods_price").show();
+            $("#goods_extence").hide();
+            $("#goods_order").hide();
+            $("#goods_color").hide();
+        }
+        function extence() {
+            $("#extence").addClass("active");
+            $("#price").removeAttr("class");
+            $("#order").removeAttr("class");
+            $("#color").removeAttr("class");
+            $("#goods_extence").show();
+            $("#goods_price").hide();
+            $("#goods_order").hide();
+            $("#goods_color").hide();
+        }
+        function order() {
+            $("#order").addClass("active");
+            $("#price").removeAttr("class");
+            $("#extence").removeAttr("class");
+            $("#color").removeAttr("class");
+            $("#goods_order").show();
+            $("#goods_price").hide();
+            $("#goods_extence").hide();
+            $("#goods_color").hide();
+        }
+        function color() {
+            $("#color").addClass("active");
+            $("#price").removeAttr("class");
+            $("#extence").removeAttr("class");
+            $("#order").removeAttr("class");
+            $("#goods_color").show();
+            $("#goods_price").hide();
+            $("#goods_extence").hide();
+            $("#goods_order").hide();
+        }
+    </script>
+    <div id="goods_price">
+        <form action="/goods_change/change_data" method="post">
+            <input type="hidden" name="type" value="price">
+            <div class="row">
+                {% for price_change in price_changes %}
+                    <div class="col-md-3 col-xs-3">
+                        <h3>{{ price_change.brand.b_name }}</h3>
+                        {% for price_time in price_change.price_times %}
+                            <input type="checkbox" name="brand_times" value="{{ price_change.brand.b_name }}:{{ price_time.now_time }}&{{ price_time.before_time }}">
+                            <b>{{ price_time.now_time }}&{{ price_time.before_time }}</b><br>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+            <input type="submit" value="提交">
+        </form>
+    </div>
+    <div id="goods_extence">
+        <form action="/goods_change/change_data" method="post">
+            <input type="hidden" name="type" value="extence">
+            <div class="row">
+                {% for extence_change in extence_changes %}
+                    <div class="col-md-3 col-xs-3">
+                        <h3>{{ extence_change.brand.b_name }}</h3>
+                        {% for extence_time in extence_change.extence_times %}
+                            <input type="checkbox" name="brand_times" value="{{ extence_change.brand.b_name }}:{{ extence_time.now_time }}&{{ extence_time.before_time }}">
+                            <b>{{ extence_time.now_time }}&{{ extence_time.before_time }}</b><br>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+            <input type="submit" value="提交">
+        </form>
+    </div>
+    <div id="goods_order">
+        <form action="/goods_change/change_data" method="post">
+            <input type="hidden" name="type" value="order">
+            <div class="row">
+                {% for order_change in order_changes %}
+                    <div class="col-md-3 col-xs-3">
+                        <h3>{{ order_change.brand.b_name }}</h3>
+                        {% for order_time in order_change.order_times %}
+                            <input type="checkbox" name="brand_times" value="{{ order_change.brand.b_name }}:{{ order_time.now_time }}&{{ order_time.before_time }}">
+                            <b>{{ order_time.now_time }}&{{ order_time.before_time }}</b><br>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+            <input type="submit" value="提交">
+        </form>
+    </div>
+    <div id="goods_color">
+        <form action="/goods_change/change_data" method="post">
+            <input type="hidden" name="type" value="color">
+            <div class="row">
+                {% for color_change in color_changes %}
+                    <div class="col-md-3 col-xs-3">
+                        <h3>{{ color_change.brand.b_name }}</h3>
+                        {% for color_time in color_change.color_times %}
+                            <input type="checkbox" name="brand_times" value="{{ color_change.brand.b_name }}:{{ color_time.now_time }}&{{ color_time.before_time }}">
+                            <b>{{ color_time.now_time }}&{{ color_time.before_time }}</b><br>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+            <input type="submit" value="提交">
+        </form>
+    </div>
+    <script>
+        $(function () {
+            $("#goods_extence").hide();
+            $("#goods_order").hide();
+            $("#goods_color").hide();
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}{{ title }}{% endblock %}
+{% block css %}
+    <style>
+        .a:hover{
+            text-decoration: none;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div>
+        <ol class="breadcrumb">
+            <li><a href="/goods/index">首页</a></li>
+            <li class="active">
+                <b>{{ goodstype.gt_type }}&nbsp;</b>品牌:<b>{{ brand.b_name }}</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                日期：<b>{{ t_time.t_time }}</b>
+            </li>
+            <li>
+                <b>[</b>
+                <a href="/goods_type/goods_type_top10?b_name={{ brand.b_name }}"><b>产品帽型</b></a>
+                <b>]</b>
+            </li>
+        </ol>
+    </div>
+
+    <div class="row">
+        <div class="col-md-1 col-xs-1"></div>
+        <div class="col-md-10 col-xs-10" style="text-align: center">
+            <div class="row goods_type_list" style="text-align: left">
+                {% for goods in goods_info %}
+                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-6 goods">
+                        <div class="thumbnail">
+                            <a href="/goods/goods_detail?goods_pk={{ goods.goods_pk }}">
+                                <img src="\static\media\{{ goods.goods_image }}" class="img-rounded" id="goods_image">
+                            </a>
+                            <div class="caption">
+                                <b>{{ goods.goods_name }}</b><br>
+                                {% if goods.goods_discount_price != "0" %}
+                                    <del>{{ goods.goods_price_type }}{{ goods.goods_discount_price }}</del>
+                                {% endif %}
+                                <b>{{ goods.goods_price_type }}{{ goods.goods_now_price }}</b><br>
+                                {% if goods.goods_title != "" %}
+                                    <b style="color: lightgrey">{{ goods.goods_title }}</b><br>
+                                {% endif %}
+                                <span class="glyphicon glyphicon-eye-open" aria-hidden="true" style="color: lightsteelblue">：{{ goods.goods_views }}</span><br>
+                                <b>颜色：{{ goods.goods_color_num }}</b>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% if page.has_previous %}
+                        <li>
+                            <a href="/goods_type/goods_type_list?b_name={{ brand }}&time_id={{ t_time.t_id }}&goodstype={{ goodstype.gt_type }}&pagenow={{ page.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                    {% endif %}
+                    {% for page_num in pagerange %}
+                        {% ifequal page_num pagenow %}
+                            <li class="active"><a href="/goods_type/goods_type_list?b_name={{ brand.b_name }}&time_id={{ t_time.t_id }}&goodstype={{ goodstype.gt_type }}&pagenow={{ page_num }}">{{ page_num }}</a></li>
+                        {% else %}
+                            <li><a href="/goods_type/goods_type_list?b_name={{ brand.b_name }}&time_id={{ t_time.t_id }}&goodstype={{ goodstype.gt_type }}&pagenow={{ page_num }}">{{ page_num }}</a></li>
+                        {% endifequal %}
+                    {% endfor %}
+                    {% if page.has_next %}
+                        <li>
+                            <a href="/goods_type/goods_type_list?b_name={{ brand.b_name }}&time_id={{ t_time.t_id }}&goodstype={{ goodstype.gt_type }}&pagenow={{ page.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        <div class="col-md-1 col-xs-1"></div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+        $(".type_list").imagesLoaded(function () {
+            $(".type_list").masonry({
+                itemSelector:".goods"
+            });
+        });
+    </script>
+{% endblock %}

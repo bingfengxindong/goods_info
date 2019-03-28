@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}{{ title }}{% endblock %}
+{% block css %}
+    <style>
+        #goods_image{
+            width: 100px;
+            height: 100px;
+        }
+        a{
+            color: black;
+        }
+        a:hover{
+            color: midnightblue;
+            text-decoration: none;
+        }
+        #goods_history{
+            margin: 0;
+            height: 500px;
+            overflow: auto;
+        }
+        #goods_desc{
+            margin: 5px;
+            border: 1px solid lightgrey;
+            border-top: 5px solid lightgrey;
+            overflow: auto;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div>
+        <ol class="breadcrumb">
+            <li class="active">首页</li>
+        </ol>
+    </div>
+    <div class="row">
+        <div class="col-md-1 col-xs-1"></div>
+{#        <div class="col-md-3 col-xs-3">#}
+{#            <ul class="list-group" style="margin: 15px">#}
+{#                <li class="list-group-item">#}
+{#                    <a href="/goods/goods_history">#}
+{#                        <h3><b>历史浏览</b></h3>#}
+{#                    </a>#}
+{#                </li>#}
+{#                <li class="list-group-item">#}
+{#                    {% ifequal is_or_not_login 1 %}#}
+{#                        {% ifequal goods_images_len 0 %}#}
+{#                             <b>当前无浏览历史记录！</b>#}
+{#                        {% else %}#}
+{#                            <div id="goods_history">#}
+{#                                <div style="margin: 5px">#}
+{#                                    {% for goods_image in goods_images %}#}
+{#                                        <div class="thumbnail">#}
+{#                                            <a href="/goods/goods_detail?goods_pk={{ goods_image.gimg_gi_goods.gi_goods.pk }}">#}
+{#                                                <img src="/static/media/{{ goods_image.gimg_path }}" class="img-thumbnail">#}
+{#                                            </a>#}
+{#                                            <div class="caption">#}
+{#                                                <b><h4><a href="/goods/goods_list?b_name={{ goods_image.gimg_gi_goods.gi_goods.b_brand.b_name }}" style="color: gray">{{ goods_image.gimg_gi_goods.gi_goods.b_brand.b_name }}</a></h4></b>#}
+{#                                                <b><a href="/goods/goods_detail?goods_pk={{ goods_image.gimg_gi_goods.pk }}" style="color: gray">{{ goods_image.gimg_gi_goods.gi_goods.g_name }}</a></b><br>#}
+{#                                                <b>{{ goods_image.gimg_gi_goods.gi_goods.g_price_type }}{{ goods_image.gimg_gi_goods.gi_goods.g_now_price }}</b>#}
+{#                                            </div>#}
+{#                                        </div>#}
+{#                                    {% endfor %}#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        {% endifequal %}#}
+{#                    {% else %}#}
+{#                        <b>当前无浏览历史记录，或者未<a style="color: cornflowerblue" href="/user/login">登录</a>！</b>#}
+{#                    {% endifequal %}#}
+{#                </li>#}
+{#            </ul>#}
+{#        </div>#}
+        <div class="col-md-8 col-xs-8">
+            {% for brand_info in brand_infos %}
+                <div class="row">
+                    <div class="col-md-12 col-xs-12">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default" disabled="disabled">{{ brand_info.brand_type.bt_type }}</button>
+                        </div>
+                    </div>
+                </div>
+                <br>
+
+                <div class="row">
+                    <div class="col-md-12 col-xs-12">
+                        <div class="row">
+                            {% for brand in brand_info.brands %}
+                                <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6">
+                                    <div class="thumbnail">
+                                        <a href="/goods/goods_analysis_top10?b_name={{ brand.b_name }}"><img src="/static/media/{{ brand.b_logo }}" class="img-circle" id="goods_image"></a>
+                                        <div class="caption" style="text-align: center">
+                                            <a href="/goods/goods_list?b_name={{ brand.b_name }}">
+                                                <h4>{{ brand.b_name }}</h4>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br>
+            {% endfor %}
+        </div>
+        <div class="col-md-3 col-xs-3">
+            <div style="height: 50px"></div>
+            <div>
+                {% ifequal goodslables_len 0 %}
+                {% else %}
+                    {% for goodslable in goodslables %}
+                        <span class="goods_lable" style="display: inline-block;margin: 2px"><b style="font-size: 20px">{{ goodslable.gl_lable }}</b></span>
+                    {% endfor %}
+                {% endifequal %}
+                <script>
+                    $(function () {
+                        var colors = ["label label-primary","label label-success","label label-info","label label-warning","label label-danger"];
+                        $(".goods_lable").each(function () {
+                            var num = Math.floor(Math.random()*colors.length);
+                            var color = colors[num];
+                            var color_lab = "goods_lable " + color;
+                            $(this).addClass(color_lab);
+                        });
+                    });
+                </script>
+            </div>
+            {% ifequal is_or_not_login 1 %}
+                {% ifequal goodsdescs_len 0 %}
+                    <div id="goods_desc">
+                        <b>当前暂无描述！</b>
+                    </div>
+                {% else %}
+                    <div id="goods_desc" style="height: 500px">
+                        <div style="margin: 10px">
+                            {% for goodsdesc in goodsdescs %}
+                                <b>{{ goodsdesc.gcd_create_date }}</b><br>
+                                <b>产品：<a href="/goods/goods_detail?goods_pk={{ goodsdesc.gcd_goods.pk }}" style="color: gray">{{ goodsdesc.gcd_goods.g_name }}</a></b><br>
+                                <b>描述：{{ goodsdesc.gcd_description|safe }}</b>
+                                <hr>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endifequal %}
+            {% else %}
+                <div id="goods_desc">
+                    <b>当前暂无描述,请前往<a href="/user/login" style="color: deepskyblue">登录</a>！</b>
+                </div>
+            {% endifequal %}
+        </div>
+    </div>
+
+
+{% endblock %}
+{% block script %}
+{% endblock %}

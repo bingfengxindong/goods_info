@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}{{ title }}{% endblock %}
+{% block css %}
+    <style>
+        .a:hover{
+            text-decoration: none;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div>
+        <ol class="breadcrumb">
+            <li><a href="/goods/index">首页</a></li>
+            <li class="active">产品列表:<b>{{ brand.b_name }}</b></li>
+        </ol>
+    </div>
+
+    <div class="row">
+        <div class="col-md-1 col-xs-1"></div>
+        <div class="col-md-7 col-xs-7">
+            <div class="dropdown">
+                <button class="btn btn-default dropdown-toggle" type="button" id="brand_date" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <b>时间：{{ goods_now_time.t_time }}</b>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="brand_date">
+                    {% for time in times %}
+                        <li><a href="/goods/goods_list?b_name={{ brand.b_name }}&time_id={{ time.t_id }}"><b>{{ time.t_time }}</b></a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-3 col-xs-3">
+        </div>
+        <div class="col-md-1 col-xs-1"></div>
+    </div>
+    <br>
+
+    <div class="row">
+        <div class="col-md-1 col-xs-1"></div>
+        <div class="col-md-10 col-xs-10" style="text-align: center">
+            <div class="row list_detail" style="text-align: left">
+                {% for goods in goods_info %}
+                    <div class="col-lg-3 col-md-4 col-sm-4 col-xs-6 goods">
+                        <div class="thumbnail">
+                            <a href="/goods/goods_detail?goods_pk={{ goods.goods_pk }}">
+                                <img src="\static\media\{{ goods.goods_image }}" class="img-rounded" id="goods_image">
+                            </a>
+                            <div class="caption">
+                                <b>{{ goods.goods_name }}</b><br>
+                                {% if goods.goods_discount_price != "0" %}
+                                    {% if goods.goods_discount_price != "0.0" %}
+                                        <del>{{ goods.goods_price_type }}{{ goods.goods_discount_price }}</del>
+                                    {% endif %}
+                                {% endif %}
+                                <b>{{ goods.goods_price_type }}{{ goods.goods_now_price }}</b><br>
+                                {% if goods.goods_title != "" %}
+                                    <b style="color: lightgrey">{{ goods.goods_title }}</b><br>
+                                {% endif %}
+                                <span class="glyphicon glyphicon-eye-open" aria-hidden="true" style="color: lightsteelblue">：{{ goods.goods_views }}</span><br>
+                                <b>颜色：{{ goods.goods_color_num }}</b>
+                                {% ifequal goods.g_col 1 %}
+                                    <span class="label label-success">已收藏</span>
+                                {% else %}
+                                    <span class="label label-danger">未收藏</span>
+                                {% endifequal %}
+
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% if page.has_previous %}
+                        <li>
+                            <a href="/goods/goods_list?b_name={{ brand }}&time_id={{ goods_now_time.t_id }}&pagenow={{ page.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                    {% endif %}
+                    {% for page_num in pagerange %}
+                        {% ifequal page_num pagenow %}
+                            <li class="active"><a href="/goods/goods_list?b_name={{ brand.b_name }}&time_id={{ goods_now_time.t_id }}&pagenow={{ page_num }}">{{ page_num }}</a></li>
+                        {% else %}
+                            <li><a href="/goods/goods_list?b_name={{ brand.b_name }}&time_id={{ goods_now_time.t_id }}&pagenow={{ page_num }}">{{ page_num }}</a></li>
+                        {% endifequal %}
+                    {% endfor %}
+                    {% if page.has_next %}
+                        <li>
+                            <a href="/goods/goods_list?b_name={{ brand.b_name }}&time_id={{ goods_now_time.t_id }}&pagenow={{ page.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        <div class="col-md-1 col-xs-1"></div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+       $(".list_detail").imagesLoaded(function () {
+            $(".list_detail").masonry({
+                itemSelector:".goods"
+            });
+        });
+    </script>
+{% endblock %}

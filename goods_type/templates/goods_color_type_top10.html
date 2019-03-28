@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}{{ title }}{% endblock %}
+{% block css %}
+    <style>
+        #goods_image{
+            width: 80px;
+            height: 80px;
+        }
+        a:hover{
+            text-decoration: none;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div>
+        <ol class="breadcrumb">
+            <li><a href="/goods/index">首页</a></li>
+            <li class="active">
+                产品颜色TOP10：<b>{{ brand.b_name }}</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                日期：<b>{{ t_time.t_time }}</b>
+            </li>
+        </ol>
+    </div>
+
+    <div class="row">
+        <div class="col-md-1 col-xs-1"></div>
+        <div class="col-md-10 col-xs-10">
+            <div class="btn-group" role="group">
+                <a type="button" href="/goods/goods_analysis_top10?b_name={{ brand.b_name }}" class="btn btn-default">网站陈列TOP10</a>
+                <a type="button" href="/goods_type/goods_type_top10?b_name={{ brand.b_name }}" class="btn btn-default">产品帽型TOP10</a>
+                <a type="button" class="btn btn-default" disabled="disabled">颜色类型TOP10</a>
+            </div>
+        </div>
+        <div class="col-md-1 col-xs-1"></div>
+    </div>
+    <br>
+
+    <div class="row">
+        <div class="col-md-1 col-xs-1"></div>
+        <div class="col-md-10 col-xs-10">
+            <table class="table table-bordered" style="text-align: center">
+                <tr>
+                    <td></td>
+                    <td>产品颜色类型</td>
+                    <td>数量</td>
+                </tr>
+                {% for goodscolortypedata in goodscolortypedatas %}
+                    {% ifequal goodscolortypedata.gct_len 0 %}
+                    {% else %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                {% ifequal goodscolortypedata.gct_len 0 %}
+                                    {{ goodscolortypedata.gct.gct_color_type }}
+                                {% else %}
+                                    <a href="/goods_type/goods_color_type_list?b_name={{ brand.b_name }}&time_id={{ t_time.t_id }}&gct_color_type={{ goodscolortypedata.gct.gct_color_type }}">
+                                        {{ goodscolortypedata.gct.gct_color_type }}
+                                    </a>
+                                {% endifequal %}
+                            </td>
+                            <td>{{ goodscolortypedata.gct_len }}</td>
+                        </tr>
+                    {% endifequal %}
+                {% endfor %}
+                <tr>
+                    <td></td>
+                    <td>
+                        <a href="/goods_type/goods_color_type_list?b_name={{ brand.b_name }}&time_id={{ t_time.t_id }}&gct_color_type=撞色"><b>撞色</b></a>
+                    </td>
+                    <td>{{ goodsmatchcolor_len }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-1 col-xs-1"></div>
+    </div>
+    <br>
+
+{% endblock %}
+{% block script %}
+{% endblock %}

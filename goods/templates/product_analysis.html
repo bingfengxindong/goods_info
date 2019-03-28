@@ -1,0 +1,484 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}{{ title }}{% endblock %}
+{% block css %}
+    <style>
+        a:hover{
+            text-decoration: none;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div>
+        <ol class="breadcrumb">
+            <li><a href="/goods/index">首页</a></li>
+            <li class="active">产品分析</li>
+        </ol>
+    </div>
+
+    <div class="row">
+        <div class="col-md-1 col-xs-1"></div>
+        <div class="col-md-2 col-xs-2">
+            <div class="dropdown">
+                <button class="btn btn-default dropdown-toggle" type="button" id="analysis_type" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <b>类型：{{ analysis_type }}</b>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="analysis_type">
+                    <li><a href="/goods/product_analysis?analysis_type=price&now_time={{ now_time_id }}"><b>price</b></a></li>
+                    <li><a href="/goods/product_analysis?analysis_type=extence&now_time={{ now_time_id }}"><b>extence</b></a></li>
+                    <li><a href="/goods/product_analysis?analysis_type=order&now_time={{ now_time_id }}"><b>order</b></a></li>
+                    <li><a href="/goods/product_analysis?analysis_type=color&now_time={{ now_time_id }}"><b>color</b></a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-8 col-xs-8">
+            <div class="dropdown">
+                <button class="btn btn-default dropdown-toggle" type="button" id="times" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <b>时间：{{ now_times.t_time }}</b>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="times">
+                    {% for time in times %}
+                        <li><a href="/goods/product_analysis?analysis_type={{ analysis_type }}&now_time={{ time.t_id }}"><b>{{ time.t_time }}</b></a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-1 col-xs-1"></div>
+    </div>
+    <br>
+
+    {% if analysis_type == "price"  %}
+        <div class="row">
+            <div class="col-md-1 col-xs-1"></div>
+            <div class="col-md-10 col-xs-10">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-default" id="price_btn1" onclick="price_raising()" disabled="disabled">上升</button>
+                    <button type="button" class="btn btn-default" id="price_btn2" onclick="price_falling()">下降</button>
+                    <script>
+                        function price_raising() {
+                            $("#price_raising").show();
+                            $("#price_falling").hide();
+                            $("#price_btn2").removeAttr("disabled");
+                            $("#price_btn1").attr("disabled","disabled");
+                        }
+                        function price_falling() {
+                            $("#price_raising").hide();
+                            $("#price_falling").show();
+                            $("#price_btn1").removeAttr("disabled");
+                            $("#price_btn2").attr("disabled","disabled");
+                        }
+                    </script>
+                </div>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+        <br>
+
+        <div class="row" style="text-align: center;min-height: 300px">
+            <div class="col-md-1 col-xs-1"></div>
+            <div class="col-md-10 col-xs-10" id="price_raising">
+                <table class="table table-bordered">
+                    {% ifequal price_rising_changes_len 0  %}
+                        <tr><td colspan="7">当前时间没有产品价格上升！</td></tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7">上升：{{ price_rising_changes_len }}</td>
+                        </tr>
+                        <tr>
+                            <td>品牌</td>
+                            <td>产品</td>
+                            <td>变化前价格</td>
+                            <td>变化后价格</td>
+                            <td>价格变化</td>
+                            <td>时间</td>
+                            <td>品牌详情</td>
+                        </tr>
+                        {% for price_rising_change in price_rising_changes %}
+                            <tr>
+                                <td>{{ price_rising_change.gpc_now_goods.b_brand.b_name }}</td>
+                                <td>{{ price_rising_change.gpc_now_goods.g_name }}</td>
+                                <td>{{ price_rising_change.gpc_price_type }}{{ price_rising_change.gpc_previous_price }}</td>
+                                <td>{{ price_rising_change.gpc_price_type }}{{ price_rising_change.gpc_now_price }}</td>
+                                <td>
+                                    {{ price_rising_change.gpc_price_change }}
+                                    <span class="glyphicon glyphicon-arrow-up" aria-hidden="true" style="color: red"></span>
+                                </td>
+                                <td>{{ price_rising_change.gpc_now_goods.g_time.t_time }}</td>
+                                <td>
+                                    <a href="/goods/goods_detail?goods_pk={{ price_rising_change.gpc_previous_goods.pk }}">前</a>
+                                    <a href="/goods/goods_detail?goods_pk={{ price_rising_change.gpc_now_goods.pk }}">后</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endifequal %}
+                </table>
+            </div>
+            <div class="col-md-10 col-xs-10" id="price_falling">
+                <table class="table table-bordered">
+                    {% ifequal price_falling_changes_len 0 %}
+                        <tr><td colspan="7">当前时间没有产品价格下降！</td></tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7">下降：{{ price_falling_changes_len }}</td>
+                        </tr>
+                        <tr>
+                            <td>品牌</td>
+                            <td>产品</td>
+                            <td>变化前价格</td>
+                            <td>变化后价格</td>
+                            <td>价格变化</td>
+                            <td>时间</td>
+                            <td>品牌详情</td>
+                        </tr>
+                        {% for price_falling_change in price_falling_changes %}
+                            <tr>
+                                <td>{{ price_falling_change.gpc_now_goods.b_brand.b_name }}</td>
+                                <td>{{ price_falling_change.gpc_now_goods.g_name }}</td>
+                                <td>{{ price_falling_change.gpc_price_type }}{{ price_falling_change.gpc_previous_price }}</td>
+                                <td>{{ price_falling_change.gpc_price_type }}{{ price_falling_change.gpc_now_price }}</td>
+                                <td>
+                                    {{ price_falling_change.gpc_price_change }}
+                                    <span class="glyphicon glyphicon-arrow-down" aria-hidden="true" style="color: green"></span>
+                                </td>
+                                <td>{{ price_falling_change.gpc_now_goods.g_time.t_time }}</td>
+                                <td>
+                                    <a href="/goods/goods_detail?goods_pk={{ price_falling_change.gpc_previous_goods.pk }}">前</a>
+                                    <a href="/goods/goods_detail?goods_pk={{ price_falling_change.gpc_now_goods.pk }}">后</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endifequal %}
+                </table>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+
+    {% elif analysis_type == "extence" %}
+        <div class="row">
+            <div class="col-md-1 col-xs-1"></div>
+            <div class="col-md-10 col-xs-10">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-default" id="extence_btn1" onclick="extence_raising()" disabled="disabled">上架</button>
+                    <button type="button" class="btn btn-default" id="extence_btn2" onclick="extence_falling()">下架</button>
+                    <script>
+                        function extence_raising() {
+                            $("#extence_raising").show();
+                            $("#extence_falling").hide();
+                            $("#extence_btn2").removeAttr("disabled");
+                            $("#extence_btn1").attr("disabled","disabled");
+                        }
+                        function extence_falling() {
+                            $("#extence_raising").hide();
+                            $("#extence_falling").show();
+                            $("#extence_btn1").removeAttr("disabled");
+                            $("#extence_btn2").attr("disabled","disabled");
+                        }
+                    </script>
+                </div>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+        <br>
+
+        <div class="row" style="text-align: center;min-height: 300px">
+            <div class="col-md-1 col-xs-1"></div>
+            <div class="col-md-10 col-xs-10" id="extence_raising">
+                <table class="table table-bordered">
+                    {% ifequal shelves_goodss_len 0 %}
+                        <tr><td colspan="3">当前时间没有新产品上架！</td></tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="3">上架：<b>{{ shelves_goodss_len }}</b></td>
+                        </tr>
+                        <tr>
+                            <td>品牌</td>
+                            <td>产品</td>
+                            <td>时间</td>
+                        </tr>
+                        {% for shelves_goods in shelves_goodss %}
+                            <tr>
+                                <td>{{ shelves_goods.gec_extence_goods.b_brand.b_name }}</td>
+                                <td>
+                                    <a href="/goods/goods_detail?goods_pk={{ shelves_goods.gec_extence_goods.pk }}">
+                                        {{ shelves_goods.gec_extence_goods.g_name }}
+                                    </a>
+                                </td>
+                                <td>{{ shelves_goods.gec_extence_now_time }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endifequal %}
+                </table>
+            </div>
+            <div class="col-md-10 col-xs-10" id="extence_falling">
+                <table class="table table-bordered">
+                    {% ifequal the_shelves_goodss_len 0 %}
+                        <tr><td colspan="3">当前时间没有产品下架！</td></tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="3">下架：<b>{{ the_shelves_goodss_len }}</b></td>
+                        </tr>
+                        <tr>
+                            <td>品牌</td>
+                            <td>产品</td>
+                            <td>时间</td>
+                        </tr>
+                        {% for the_shelves_goods in the_shelves_goodss %}
+                            <tr>
+                                <td>{{ the_shelves_goods.gec_extence_goods.b_brand.b_name }}</td>
+                                <td>
+                                    <a href="/goods/goods_detail?goods_pk={{ the_shelves_goods.gec_extence_goods.pk }}">
+                                        {{ the_shelves_goods.gec_extence_goods.g_name }}
+                                    </a>
+                                </td>
+                                <td>{{ the_shelves_goods.gec_extence_now_time }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endifequal %}
+                </table>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+
+    {% elif analysis_type == "order" %}
+        <div class="row">
+            <div class="col-md-1 col-xs-1"></div>
+            <div class="col-md-10 col-xs-10">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-default" id="order_btn1" onclick="order_raising()" disabled="disabled">上升</button>
+                    <button type="button" class="btn btn-default" id="order_btn2" onclick="order_falling()">下降</button>
+                    <script>
+                        function order_raising() {
+                            $("#order_raising").show();
+                            $("#order_falling").hide();
+                            $("#order_btn2").removeAttr("disabled");
+                            $("#order_btn1").attr("disabled","disabled");
+                        }
+                        function order_falling() {
+                            $("#order_raising").hide();
+                            $("#order_falling").show();
+                            $("#order_btn1").removeAttr("disabled");
+                            $("#order_btn2").attr("disabled","disabled");
+                        }
+                    </script>
+                </div>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+        <br>
+
+        <div class="row" style="text-align: center;min-height: 300px">
+            <div class="col-md-1 col-xs-1"></div>
+            <div class="col-md-10 col-xs-10" id="order_raising">
+                <table class="table table-bordered">
+                    {% ifequal raising_datas_len 0 %}
+                        <tr><td colspan="9">当前时间没有产品位置上升！</td></tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="9">上升：<b>{{ raising_datas_len }}</b></td>
+                        </tr>
+                        <tr>
+                            <td>品牌</td>
+                            <td>产品</td>
+                            <td>时间</td>
+                            <td>详情</td>
+                            <td>产品编号</td>
+                            <td>变化前位置</td>
+                            <td>变化后位置</td>
+                            <td>位置变化</td>
+                            <td>人群</td>
+                        </tr>
+                        {% for raising_data in raising_datas %}
+                            <tr>
+                                <td rowspan="{{ raising_data.raising_goods_orders_len }}">{{ raising_data.now_goods.b_brand.b_name }}</td>
+                                <td rowspan="{{ raising_data.raising_goods_orders_len }}">{{ raising_data.now_goods.g_name }}</td>
+                                <td rowspan="{{ raising_data.raising_goods_orders_len }}">{{ raising_data.times }}</td>
+                                <td rowspan="{{ raising_data.raising_goods_orders_len }}">
+                                    <a href="/goods/goods_detail?goods_pk={{ raising_data.previous_goods.pk }}">前</a>
+                                    <a href="/goods/goods_detail?goods_pk={{ raising_data.now_goods.pk }}">后</a>
+                                </td>
+                                {% for raising_goods_order in raising_data.raising_goods_orders %}
+                                    <td>{{ raising_goods_order.gi.gi_model }}</td>
+                                    <td>{{ raising_goods_order.previous_order }}</td>
+                                    <td>{{ raising_goods_order.now_order }}</td>
+                                    <td>
+                                        {{ raising_goods_order.order_change }}
+                                        <span class="glyphicon glyphicon-arrow-up" aria-hidden="true" style="color: red"></span>
+                                    </td>
+                                    <td>{{ raising_goods_order.sex }}</td>
+                                    </tr><tr>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    {% endifequal %}
+                </table>
+            </div>
+            <div class="col-md-10 col-xs-10" id="order_falling">
+                <table class="table table-bordered">
+                    {% ifequal falling_datas_len 0 %}
+                        <tr><td colspan="9">当前时间没有产品位置下降！</td></tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="9">下降：<b>{{ falling_datas_len }}</b></td>
+                        </tr>
+                        <tr>
+                            <td>品牌</td>
+                            <td>产品</td>
+                            <td>时间</td>
+                            <td>详情</td>
+                            <td>产品编号</td>
+                            <td>变化前位置</td>
+                            <td>变化后位置</td>
+                            <td>位置变化</td>
+                            <td>人群</td>
+                        </tr>
+                        {% for falling_data in falling_datas %}
+                            <tr>
+                                <td rowspan="{{ falling_data.falling_goods_orders_len }}">{{ falling_data.now_goods.b_brand.b_name }}</td>
+                                <td rowspan="{{ falling_data.falling_goods_orders_len }}">{{ falling_data.now_goods.g_name }}</td>
+                                <td rowspan="{{ falling_data.falling_goods_orders_len }}">{{ falling_data.times }}</td>
+                                <td rowspan="{{ falling_data.falling_goods_orders_len }}">
+                                    <a href="/goods/goods_detail?goods_pk={{ falling_data.previous_goods.pk }}">前</a>
+                                    <a href="/goods/goods_detail?goods_pk={{falling_data.now_goods.pk }}">后</a>
+                                </td>
+                                {% for falling_goods_order in falling_data.falling_goods_orders %}
+                                    <td>{{ falling_goods_order.gi.gi_model }}</td>
+                                    <td>{{ falling_goods_order.previous_order }}</td>
+                                    <td>{{ falling_goods_order.now_order }}</td>
+                                    <td>
+                                        {{ falling_goods_order.order_change }}
+                                        <span class="glyphicon glyphicon-arrow-down" aria-hidden="true" style="color: green"></span>
+                                    </td>
+                                    <td>{{ falling_goods_order.sex }}</td>
+                                    </tr><tr>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    {% endifequal %}
+                </table>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+
+    {% elif analysis_type == "color" %}
+        <div class="row">
+            <div class="col-md-1 col-xs-1"></div>
+            <div class="col-md-10 col-xs-10">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-default" id="color_btn1" onclick="color_raising()" disabled="disabled">增加</button>
+                    <button type="button" class="btn btn-default" id="color_btn2" onclick="color_falling()">减少</button>
+                    <script>
+                        function color_raising() {
+                            $("#color_raising").show();
+                            $("#color_falling").hide();
+                            $("#color_btn2").removeAttr("disabled");
+                            $("#color_btn1").attr("disabled","disabled");
+                        }
+                        function color_falling() {
+                            $("#color_raising").hide();
+                            $("#color_falling").show();
+                            $("#color_btn1").removeAttr("disabled");
+                            $("#color_btn2").attr("disabled","disabled");
+                        }
+                    </script>
+                </div>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+        <br>
+
+
+        <div class="row" style="text-align: center;min-height: 300px">
+            <div class="col-md-1 col-xs-1"></div>
+            <div class="col-md-10 col-xs-10" id="color_raising">
+                <table class="table table-bordered">
+                    {% ifequal color_raising_datas_len 0 %}
+                        <tr><td colspan="6">当前时间没有产品颜色增加！</td></tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6">增加：<b>{{ color_raising_datas_len }}</b></td>
+                        </tr>
+                        <tr>
+                            <td>品牌</td>
+                            <td>产品</td>
+                            <td>时间</td>
+                            <td>颜色变化数量</td>
+                            <td>详情</td>
+                            <td>颜色</td>
+                        </tr>
+                        {% for color_raising_data in color_raising_datas %}
+                            <tr>
+                                <td rowspan="{{ color_raising_data.change_color_num }}">{{ color_raising_data.now_goods.b_brand.b_name }}</td>
+                                <td rowspan="{{ color_raising_data.change_color_num }}">{{ color_raising_data.now_goods.g_name }}</td>
+                                <td rowspan="{{ color_raising_data.change_color_num }}">{{ color_raising_data.times }}</td>
+                                <td rowspan="{{ color_raising_data.change_color_num }}">
+                                    {{ color_raising_data.change_color_num }}
+                                    <span class="glyphicon glyphicon-arrow-up" aria-hidden="true" style="color: green"></span>
+                                </td>
+                                <td rowspan="{{ color_raising_data.change_color_num }}">
+                                    <a href="/goods/goods_detail?goods_pk={{color_raising_data.previous_goods.pk }}">前</a>
+                                    <a href="/goods/goods_detail?goods_pk={{color_raising_data.now_goods.pk }}">后</a>
+                                </td>
+                                {% for goods_change_color in color_raising_data.goods_change_colors %}
+                                    <td>{{ goods_change_color.gccc_color }}</td>
+                                    </tr><tr>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    {% endifequal %}
+                </table>
+            </div>
+            <div class="col-md-10 col-xs-10" id="color_falling">
+                <table class="table table-bordered">
+                    {% ifequal color_falling_datas_len 0 %}
+                        <tr><td colspan="6">当前时间没有产品颜色减少！</td></tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6">减少：<b>{{ color_falling_datas_len }}</b></td>
+                        </tr>
+                        <tr>
+                            <td>品牌</td>
+                            <td>产品</td>
+                            <td>时间</td>
+                            <td>颜色变化数量</td>
+                            <td>详情</td>
+                            <td>颜色</td>
+                        </tr>
+                        {% for color_falling_data in color_falling_datas %}
+                            <tr>
+                                <td rowspan="{{ color_falling_data.change_color_num }}">{{ color_falling_data.now_goods.b_brand.b_name }}</td>
+                                <td rowspan="{{ color_falling_data.change_color_num }}">{{ color_falling_data.now_goods.g_name }}</td>
+                                <td rowspan="{{ color_falling_data.change_color_num }}">{{ color_falling_data.times }}</td>
+                                <td rowspan="{{ color_falling_data.change_color_num }}">
+                                    {{ color_falling_data.change_color_num }}
+                                    <span class="glyphicon glyphicon-arrow-down" aria-hidden="true" style="color: red"></span>
+                                </td>
+                                <td rowspan="{{ color_falling_data.change_color_num }}">
+                                    <a href="/goods/goods_detail?goods_pk={{color_falling_data.previous_goods.pk }}">前</a>
+                                    <a href="/goods/goods_detail?goods_pk={{color_falling_data.now_goods.pk }}">后</a>
+                                </td>
+                                {% for goods_change_color in color_falling_data.goods_change_colors %}
+                                    <td>{{ goods_change_color.gccc_color }}</td>
+                                    </tr><tr>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    {% endifequal %}
+                </table>
+            </div>
+            <div class="col-md-1 col-xs-1"></div>
+        </div>
+    {% endif %}
+
+{% endblock %}
+{% block script %}
+    <script>
+        $(function () {
+            $("#price_falling").hide();
+            $("#extence_falling").hide();
+            $("#order_falling").hide();
+            $("#color_falling").hide();
+        })
+    </script>
+{% endblock %}
