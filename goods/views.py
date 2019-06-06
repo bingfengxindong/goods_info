@@ -43,7 +43,7 @@ class GoodsUpload(View):
     def get(self,request):
         upload_dirs = os.path.join(BASE_DIR,"upload_data","data")
         brand_path_list = []
-        for upload_dir_name in os.listdir(upload_dirs): #遍历以时间为目录名的的数据目录
+        for upload_dir_name in os.listdir(upload_dirs)[::-1]: #遍历以时间为目录名的的数据目录
             brand_time = date_conversion(upload_dir_name)
             brand_paths = []
             for upload_file_name in os.listdir(os.path.join(upload_dirs,upload_dir_name)): #遍历单个时间目录下的数据文件

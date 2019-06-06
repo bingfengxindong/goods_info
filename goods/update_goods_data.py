@@ -1,11 +1,14 @@
 from goods.models import *
 from goods_info.settings import BASE_DIR
 from lxml import etree
+from retrying import retry
 import csv
 import datetime
 import uuid
 import requests
 import os
+import time
+import random
 
 
 header = {
@@ -194,6 +197,14 @@ class UpdateGoodsDate:
             "brand_goodss":brand_goodss,
         }
 
+    headers = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'zh-CN,zh;q=0.9',
+        'Upgrade-Insecure-sRequests': '1',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36',
+    }
+
     def _brand_info_storage(self,brand_infos):
         """
         产品信息存入数据库
@@ -277,13 +288,17 @@ class UpdateGoodsDate:
                             comment_time = goodscomment["goods_comment_time"].split("-")
                         goods_comment_time = datetime.date(int(comment_time[0]),int(comment_time[1]),int(comment_time[2]))
                         gc.gc_comment_time = goods_comment_time
-                        gc.gc_comment = goodscomment["goods_comment_comment"]
+                        try:
+                            gc.gc_comment = goodscomment["goods_comment_comment"]
+                        except:
+                            gc.gc_comment = "goods"
                         gc.gc_comment_star = int(goodscomment["goods_comment_star"])
                         gc.gc_goods = goods
                         gc.save()
 
             print("开始上传%s的产品信息"%brand_goods["goods_name"])
-            for goods_information in brand_goods["goods_informations"]:
+            goods_informations = brand_goods["goods_informations"]
+            for goods_information in goods_informations:
                 gi_id = str(uuid.uuid1())
                 gi_color_type = GoodsColorType.objects.get(gct_color_type="未分类")
                 gi = GoodsInformation()
@@ -317,7 +332,7 @@ class UpdateGoodsDate:
                     gd.gd_gi = goodsinformation
                     gd.save()
 
-                print("开始上传%s的图片"%brand_goods["goods_name"])
+                print("开始上传%s的图片-----%.2f%%"%(brand_goods["goods_name"],(goods_informations.index(goods_information) + 1)/len(goods_informations) * 100))
                 goods_image_dir = os.path.join(BASE_DIR, "static", "media", "image", upload_time, brand_name)
                 isExists = os.path.exists(goods_image_dir)
                 if not isExists: #判断是否存在目录
@@ -329,39 +344,16 @@ class UpdateGoodsDate:
                     goods_images = eval(goods_information["goods_images"])
                 for goods_image in goods_images:
                     print(brand_name,goods_image)
-                    if brand_name != "monki":
-                        goods_image = "https:%s"%(goods_image.split(":")[-1])
                     print("开始下载%s"%goods_image)
-                    if brand_name == "underarmour_eu":
-                        image_name = "%s.jpg"%goods_image.split("?")[0].split("/")[-1]
-                        # image_name = "{}.jpg".format(str(uuid.uuid1()))
-                        response = requests.get(url=goods_image.replace("fmt=jpg&",""),headers=header)
-                        text = response.text
-                        html = etree.HTML(text)
-                        h_img = html.xpath("//pre/text()")
-                        if len(h_img) == 0:
-                            image = response.content
-                            with open(os.path.join(goods_image_dir, image_name), "wb") as img:
-                                img.write(image)
-                            img.close()
 
-                            gimg = GoodsImage()
-                            gimg.gimg_id = str(uuid.uuid1())
-                            gimg.gimg_path = os.path.join("image", upload_time, brand_name, image_name)
-                            gimg.gimg_url = goods_image
-                            gimg.gimg_gi_goods = goodsinformation
-                            gimg.save()
+                    if brand_name == "nike":
+                    #     图片下载
+                        image_name = "%s.jpg" % goods_image.split("/")[-2]
+                    elif brand_name == "hm" or brand_name == "kenzo" or brand_name == "prada":
+                        image_name = "{}.jpg".format(uuid.uuid1())
                     else:
-                        if brand_name == "nike":
-                            # 图片下载
-                            image_name = "%s.jpg" % goods_image.split("/")[-2]
-                        elif brand_name == "champion":
-                            image_name = "%s.jpg"%goods_image.split("?")[0].split("/")[-1]
-                        elif brand_name == "monki":
-                            image_name = "%s.jpg"%goods_image.split("=source[")[-1].split("]")[0]
-                        else:
-                            image_name = goods_image.split("/")[-1].split("?")[0]
-                        # image_name = "{}.jpg".format(str(uuid.uuid1()))
+                        image_name = goods_image.split("/")[-1].split("?")[0]
+                    try:
                         gimg = GoodsImage()
                         gimg.gimg_id = str(uuid.uuid1())
                         gimg.gimg_path = os.path.join("image",upload_time,brand_name,image_name)
@@ -370,12 +362,22 @@ class UpdateGoodsDate:
                         gimg.save()
 
                         #图片下载
-                        response = requests.get(url=goods_image,headers=header)
-                        image = response.content
-                        with open(os.path.join(goods_image_dir,image_name),"wb") as img:
-                            img.write(image)
-                        img.close()
-            print("%s上传完成-----%.2f%%"%(brand_goods["goods_name"],(brand_goodss.index(brand_goods) + 1)/len(brand_goodss) * 100))
+                        print(goods_image)
+                        self._img_upload(goods_image,goods_image_dir,image_name)
+                    except:
+                        continue
+            print("\033[1;31;47m",end="")
+            print("%s上传完成-----%.2f%%"%(brand_goods["goods_name"],(brand_goodss.index(brand_goods) + 1)/len(brand_goodss) * 100),end="")
+            print("\033[0m")
+
+    @retry(stop_max_attempt_number=3)
+    def _img_upload(self,goods_image,goods_image_dir,image_name):
+        print(goods_image)
+        response = requests.get(url=goods_image, headers=self.headers, timeout=10)
+        image = response.content
+        with open(os.path.join(goods_image_dir, image_name), "wb") as img:
+            img.write(image)
+        img.close()
 
     def _data_judge(self,data_field,field_list):
         """

@@ -171,7 +171,7 @@ class GoodsImage(models.Model):
     """
     gimg_id = models.UUIDField(default=uuid.uuid1())
     gimg_path = models.CharField(max_length=100) #图片
-    gimg_url = models.CharField(max_length=200) #图片url
+    gimg_url = models.CharField(max_length=400) #图片url
     gimg_gi_goods = models.ForeignKey(GoodsInformation,on_delete=models.CASCADE)
     create_date = models.DateTimeField(default=datetime.datetime.now)
     create_end_date = models.DateField(auto_now=True)
