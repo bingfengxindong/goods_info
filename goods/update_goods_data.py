@@ -84,6 +84,7 @@ class UpdateGoodsDate:
             page_index = self._data_judge("goods_page",brand_titles)
             comments_index = self._data_judge("goods_comments",brand_titles)
             goods_url_index = self._data_judge("goods_url",brand_titles)
+            goods_type_index = self._data_judge("goods_type",brand_titles)
             # print(brand_name)
             # print(brand_info[price_index])
             if name_index != None:
@@ -119,6 +120,8 @@ class UpdateGoodsDate:
                 goods_comments = ""
             if goods_url_index != None:
                 goods_url = brand_info[goods_url_index]
+            if goods_type_index != None:
+                goods_type = brand_info[goods_type_index]
             goods_infos.append({
                 "goods_name":goods_name,
                 "goods_model":goods_model,
@@ -135,6 +138,7 @@ class UpdateGoodsDate:
                 "goods_page":goods_page,
                 "goods_comments":goods_comments,
                 "goods_url":goods_url,
+                "goods_type":goods_type,
             })
         return {
             "brand_name":brand_name,
@@ -169,6 +173,7 @@ class UpdateGoodsDate:
             goods_page = [i["goods_page"] for i in goods_heavy_info]
             goods_comments = [i["goods_comments"] for i in goods_heavy_info][0]
             goods_urls = [i["goods_url"] for i in goods_heavy_info]
+            goods_types = [i["goods_type"] for i in goods_heavy_info][0]
             goods_informations = []
             for data_index in range(len(goods_model)):
                 goods_informations.append({
@@ -190,6 +195,7 @@ class UpdateGoodsDate:
                 "goods_now_price":goods_now_price,
                 "goods_comments":goods_comments,
                 "goods_informations":goods_informations,
+                "goods_type": goods_types,
             })
         return {
             "brand_name":brand_name,
@@ -257,6 +263,7 @@ class UpdateGoodsDate:
             g_time = Time.objects.get(t_id=t_id)
 
         brand_goodss = brand_infos["brand_goodss"]
+        print(brand_infos["brand_goodss"])
         for brand_goods in brand_goodss:
             print("开始上传%s"%brand_goods["goods_name"])
             g_id = str(uuid.uuid1())
@@ -271,6 +278,7 @@ class UpdateGoodsDate:
             g.g_time = g_time
             g.b_brand = brand
             g.g_type = g_type
+            g.g_goods_type = brand_goods["goods_type"]
             g.save()
 
             goods = Goods.objects.get(g_id=g_id)

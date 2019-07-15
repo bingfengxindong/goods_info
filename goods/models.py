@@ -58,7 +58,7 @@ class BrandTime(models.Model):
         return "%s-%s"%(str(self.bt_time),self.bt_brand.b_name)
 
     class Meta:
-        ordering = ["pk"]
+        ordering = ["-pk"]
         verbose_name = "品牌抓取时间"
         verbose_name_plural = "品牌抓取时间"
 
@@ -92,6 +92,7 @@ class Goods(models.Model):
     g_time = models.ForeignKey(Time, on_delete=models.CASCADE) #产品时间
     b_brand = models.ForeignKey(Brand,on_delete=models.CASCADE) #产品所属品牌
     g_type = models.ForeignKey(GoodsType,on_delete=models.CASCADE) #产品类型
+    g_goods_type = models.CharField(max_length=100,null=True,blank=True) #产品抓取类型
     create_date = models.DateTimeField(default=datetime.datetime.now)
     create_end_date = models.DateField(auto_now=True)
     isdelete = models.BooleanField(default=False)
@@ -190,7 +191,7 @@ class GoodsComment(models.Model):
     """
     gc_id = models.UUIDField(default=uuid.uuid1())
     gc_comment_time = models.DateField() #评论时间
-    gc_comment = models.CharField(max_length=800) #评论
+    gc_comment = models.TextField(blank=True,null=True) #评论
     gc_comment_star = models.IntegerField() #评论星级
     gc_goods = models.ForeignKey(Goods,on_delete=models.CASCADE)
     create_date = models.DateTimeField(default=datetime.datetime.now)
