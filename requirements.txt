@@ -8,7 +8,7 @@ chromedriver==2.24.1
 colorama==0.3.9
 cryptography==2.3.1
 decorator==4.3.0
-Django==2.0.7
+Django==2.2.24
 django-tinymce==2.7.0
 idna==2.7
 ipython==6.5.0
